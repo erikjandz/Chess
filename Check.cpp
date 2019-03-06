@@ -124,6 +124,7 @@ bool checkmate(vector<vector<string>> board, char p){
         if(check(board2, p)){
             return true;
         }
+        board2 = board;
     }
     return false;
 
