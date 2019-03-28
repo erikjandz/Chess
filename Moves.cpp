@@ -5,7 +5,7 @@
 
 using namespace std;
 
-bool movePawn(vector<vector<string>> board, vector<int> coord1, const vector<int> coord2, char p){
+vector<vector<int>> movePawn(vector<vector<string>> board, vector<int> coord1, char p){
     char o;
     if(p == 'W'){
         o = 'B';
@@ -64,15 +64,10 @@ bool movePawn(vector<vector<string>> board, vector<int> coord1, const vector<int
             }
         }
     }
-    for(size_t i = 0; i < moves.size(); i++){
-        if(coord2 == moves[i]){
-            return true;
-        }
-    }
-    return false;
+    return moves;
 }
 
-bool moveKnight(vector<vector<string>> board, vector<int> coord1, const vector<int> coord2, char p) {
+vector<vector<int>> moveKnight(vector<vector<string>> board, vector<int> coord1, char p) {
     vector<vector<int>> moves;
     if(coord1[0] <= 6 && coord1[1] <= 7 && board[coord1[0] + 2][coord1[1] + 1][0] != p){
         moves.push_back({coord1[0] + 2, coord1[1] + 1});
@@ -98,15 +93,10 @@ bool moveKnight(vector<vector<string>> board, vector<int> coord1, const vector<i
     if(coord1[0] >= 3 && coord1[1] <= 7 && board[coord1[0] - 2][coord1[1] + 1][0] != p){
         moves.push_back({coord1[0] - 2, coord1[1] + 1});
     }
-    for (size_t i = 0; i < moves.size(); i++) {
-        if (coord2 == moves[i]) {
-            return true;
-        }
-    }
-    return false;
+    return moves;
 }
 
-bool moveBischop(vector<vector<string>> board, vector<int> coord1, const vector<int> coord2, char p) {
+vector<vector<int>> moveBischop(vector<vector<string>> board, vector<int> coord1, char p) {
     char o;
     if (p == 'W') {
         o = 'B';
@@ -186,16 +176,11 @@ bool moveBischop(vector<vector<string>> board, vector<int> coord1, const vector<
             moves.push_back({y, x});
         }
     }
+    return moves;
 
-    for (size_t i = 0; i < moves.size(); i++) {
-        if (coord2 == moves[i]) {
-            return true;
-        }
-    }
-    return false;
 }
 
-bool moveRook(vector<vector<string>> board, vector<int> coord1, const vector<int> coord2, char p) {
+vector<vector<int>> moveRook(vector<vector<string>> board, vector<int> coord1, char p) {
     char o;
     if (p == 'W') {
         o = 'B';
@@ -267,16 +252,10 @@ bool moveRook(vector<vector<string>> board, vector<int> coord1, const vector<int
             moves.push_back({y, coord1[1]});
         }
     }
-
-    for (size_t i = 0; i < moves.size(); i++) {
-        if (coord2 == moves[i]) {
-            return true;
-        }
-    }
-    return false;
+    return moves;
 }
 
-bool moveKing(vector<vector<string>> board, vector<int> coord1, const vector<int> coord2, char p) {
+vector<vector<int>> moveKing(vector<vector<string>> board, vector<int> coord1, char p) {
     char o;
     if (p == 'W') {
         o = 'B';
@@ -310,20 +289,14 @@ bool moveKing(vector<vector<string>> board, vector<int> coord1, const vector<int
         moves.push_back({coord1[0], coord1[1] - 1});
     }
 
-    for (size_t i = 0; i < moves.size(); i++) {
-        if (coord2 == moves[i]) {
-            return true;
-        }
-    }
-    return false;
+    return moves;
 }
 
-void move(vector<vector<string>> & board, string piece, string place, char p) {
+bool move(vector<vector<string>> & board, string piece, string place, char p) {
     vector<int> coord1;
     vector<int> coord2;
     if(piece[0] != p){
-        cout << "foute zet" << endl;
-        return;
+        return false;
     }
     for(int i = 1; i < 9; i++) {
         for(int j = 1; j < 9; j++) {
@@ -333,59 +306,41 @@ void move(vector<vector<string>> & board, string piece, string place, char p) {
             }
         }
     }
+    vector<vector<int>> moves;
+    vector<vector<int>> moves2;
     coord2 = {place[1] - 48, int(place[0]) - 64};
     if(piece[1] == 'P') {
-        if(movePawn(board, coord1, coord2, p)) {
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
+        moves = movePawn(board, coord1, p);
+    }else if(piece[1] == 'N') {
+        moves = moveKnight(board, coord1, p);
+    }else if(piece[1] == 'B') {
+        moves = moveBischop(board, coord1, p);
+    }else if(piece[1] == 'R') {
+        moves = moveRook(board, coord1, p);
+    }else if(piece[1] == 'Q') {
+        moves = moveRook(board, coord1, p);
+        moves2 = moveBischop(board, coord1, p);
+        for(size_t i = 0; i < moves2.size() ; i++){
+            moves.push_back(moves2[i]);
+        }
+    }else if(piece[1] == 'K') {
+        moves = moveKing(board, coord1, p);
+    }
+
+    vector<vector<string>> board2;
+    for (size_t i = 0; i < moves.size(); i++) {
+        if (moves[i] == coord2) {
+            board2 = board;
+            board2[coord2[0]][coord2[1]] = piece;
+            board2[coord1[0]][coord1[1]] = "   ";
+            if(check(board2, p)){
+                return false;
+            }else{
+                board[coord2[0]][coord2[1]] = piece;
+                board[coord1[0]][coord1[1]] = "   ";
+            }
+            return true;
         }
     }
-    if(piece[1] == 'N') {
-        if(moveKnight(board, coord1, coord2, p)) {
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
-        }
-    }
-    if(piece[1] == 'B') {
-        if (moveBischop(board, coord1, coord2, p)) {
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
-        }
-    }
-    if(piece[1] == 'R') {
-        if (moveRook(board, coord1, coord2, p)) {
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
-        }
-    }
-    if(piece[1] == 'Q') {
-        if (moveRook(board, coord1, coord2, p) || moveBischop(board, coord1, coord2, p)){
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
-        }
-    }
-    if(piece[1] == 'K') {
-        if (moveKing(board, coord1, coord2, p)){
-            board[coord2[0]][coord2[1]] = piece;
-            board[coord1[0]][coord1[1]] = "   ";
-        }else{
-            cout << "Foute zet" << endl;
-            return;
-        }
-    }
+    return false;
 }

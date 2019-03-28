@@ -43,7 +43,16 @@ int main(){
         cin >> stuk;
         cout << "Geef een veld" << endl;
         cin >> plek;
-        move(board, stuk, plek, 'W');
+        while(true){
+            if(move(board, stuk, plek, 'W')){
+                break;
+            }
+            cout << "Foute zet" << endl;
+            cout << "Geef een stuk om te verplaatsen" << endl;
+            cin >> stuk;
+            cout << "Geef een veld" << endl;
+            cin >> plek;
+        }
         if(check(board, 'B')){
             cout << "Schaak" << endl;
         }
@@ -56,7 +65,16 @@ int main(){
         cin >> stuk;
         cout << "Geef een veld" << endl;
         cin >> plek;
-        move(board, stuk, plek, 'B');
+        while(true){
+            if(move(board, stuk, plek, 'B')){
+                break;
+            }
+            cout << "Foute zet" << endl;
+            cout << "Geef een stuk om te verplaatsen" << endl;
+            cin >> stuk;
+            cout << "Geef een veld" << endl;
+            cin >> plek;
+        }
         if(check(board, 'W')){
             cout << "Schaak" << endl;
         }
